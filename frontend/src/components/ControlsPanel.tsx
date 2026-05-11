@@ -240,7 +240,7 @@ function StretchPanel({ project, busy, setBusy, advanced, onChanged, notify, onA
 }
 
 // --------------------------------------------------------------------------- //
-function BackgroundPanel({ project, busy, setBusy, advanced, onChanged, notify, setOverlay }: Props) {
+function BackgroundPanel({ project, busy, setBusy, advanced, onChanged, notify, setOverlay, onAdvance }: Props) {
   const [method, setMethod] = useState<"polynomial" | "rbf" | "ai">("polynomial");
   const [strength, setStrength] = useState(1.0);
   const [smoothing, setSmoothing] = useState(0.5);
@@ -299,12 +299,15 @@ function BackgroundPanel({ project, busy, setBusy, advanced, onChanged, notify, 
       <button className="primary" onClick={run} disabled={busy}>
         <Spinner busy={busy}>{busy ? "Working…" : "Remove Light Pollution / Gradient"}</Spinner>
       </button>
+      <div className="row" style={{ justifyContent: "flex-end" }}>
+        <button onClick={() => onAdvance("denoise")}>Next: Denoise →</button>
+      </div>
     </div>
   );
 }
 
 // --------------------------------------------------------------------------- //
-function DenoisePanel({ project, busy, setBusy, advanced, onChanged, notify }: Props) {
+function DenoisePanel({ project, busy, setBusy, advanced, onChanged, notify, onAdvance }: Props) {
   const [method, setMethod] = useState<"nlm" | "wavelet" | "starlet" | "bilateral" | "ai">("starlet");
   const [strength, setStrength] = useState(0.45);
   const [protectStars, setProtectStars] = useState(true);
@@ -365,12 +368,15 @@ function DenoisePanel({ project, busy, setBusy, advanced, onChanged, notify }: P
       <button className="primary" onClick={() => run()} disabled={busy}>
         <Spinner busy={busy}>{busy ? "Denoising…" : "Apply Denoise"}</Spinner>
       </button>
+      <div className="row" style={{ justifyContent: "flex-end" }}>
+        <button onClick={() => onAdvance("sharpen")}>Next: Sharpen →</button>
+      </div>
     </div>
   );
 }
 
 // --------------------------------------------------------------------------- //
-function SharpenPanel({ project, busy, setBusy, advanced, onChanged, notify }: Props) {
+function SharpenPanel({ project, busy, setBusy, advanced, onChanged, notify, onAdvance }: Props) {
   const [method, setMethod] = useState<"richardson_lucy" | "wiener" | "unsharp" | "ai">("richardson_lucy");
   const [strength, setStrength] = useState(0.5);
   const [fwhm, setFwhm] = useState(0.0); // 0 = auto-estimate from stars
@@ -433,12 +439,15 @@ function SharpenPanel({ project, busy, setBusy, advanced, onChanged, notify }: P
       <button className="primary" onClick={() => run()} disabled={busy}>
         <Spinner busy={busy}>{busy ? "Sharpening…" : "Apply Sharpen"}</Spinner>
       </button>
+      <div className="row" style={{ justifyContent: "flex-end" }}>
+        <button onClick={() => onAdvance("stretch")}>Next: Stretch →</button>
+      </div>
     </div>
   );
 }
 
 // --------------------------------------------------------------------------- //
-function ColorPanel({ project, busy, setBusy, advanced, onChanged, notify }: Props) {
+function ColorPanel({ project, busy, setBusy, advanced, onChanged, notify, onAdvance }: Props) {
   const [mode, setMode] = useState<"natural_rgb" | "sho" | "hoo" | "custom">("natural_rgb");
   const [saturation, setSaturation] = useState(0);
   const [greenReduction, setGreenReduction] = useState(0);
@@ -503,18 +512,24 @@ function ColorPanel({ project, busy, setBusy, advanced, onChanged, notify }: Pro
       <button className="primary" onClick={() => run()} disabled={busy}>
         <Spinner busy={busy}>{busy ? "Working…" : "Apply Color"}</Spinner>
       </button>
+      <div className="row" style={{ justifyContent: "flex-end" }}>
+        <button onClick={() => onAdvance("stars")}>Next: Stars →</button>
+      </div>
     </div>
   );
 }
 
 // --------------------------------------------------------------------------- //
-function StarsPanel({ project, busy, setBusy, onChanged, notify, setOverlay }: Props) {
+function StarsPanel({ project, busy, setBusy, onChanged, notify, setOverlay, onAdvance }: Props) {
   const [amount, setAmount] = useState(0.5);
 
   async function reduce() {
     setBusy(true);
     try {
       await api.starReduction(project.project_id, amount);
+      // Clear any cached overlay (starless / star_mask) so the user sees
+      // the freshly reduced image, not a stale preview.
+      setOverlay("none");
       notify("Stars reduced");
       onChanged();
     } catch (e) { notify(`Failed: ${(e as Error).message}`, "error"); } finally { setBusy(false); }
@@ -541,6 +556,9 @@ function StarsPanel({ project, busy, setBusy, onChanged, notify, setOverlay }: P
       <button className="primary" onClick={reduce} disabled={busy}>
         <Spinner busy={busy}>{busy ? "Working…" : "Reduce Stars"}</Spinner>
       </button>
+      <div className="row" style={{ justifyContent: "flex-end" }}>
+        <button onClick={() => onAdvance("export")}>Next: Export →</button>
+      </div>
     </div>
   );
 }
