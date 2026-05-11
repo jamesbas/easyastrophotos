@@ -1,0 +1,30 @@
+# Easy Astro Photos — root ignores
+.vscode/
+*.log
+
+# Python
+**/.venv/
+**/__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# Node / frontend
+**/node_modules/
+**/dist/
+**/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local data / user models (large, machine-specific)
+**/.cache/
+*.onnx
+*.pth
+*.pt
+*.bin

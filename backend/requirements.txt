@@ -1,0 +1,17 @@
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.6
+numpy>=1.26
+scipy>=1.11
+scikit-image>=0.22
+opencv-python-headless>=4.9
+astropy>=6.0
+astroalign>=2.5
+tifffile>=2024.1
+imageio>=2.34
+Pillow>=10.2
+python-multipart>=0.0.9
+PyWavelets>=1.5
+# Optional: install onnxruntime (CPU) or onnxruntime-gpu / onnxruntime-directml
+# to enable AI features in Phase 5.
+# onnxruntime>=1.17

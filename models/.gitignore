@@ -1,0 +1,7 @@
+# Keep the folder under version control but ignore the (potentially huge) model binaries.
+*.onnx
+*.onnx.data
+*.pt
+*.pth
+*.bin
+*.safetensors
