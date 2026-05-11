@@ -35,6 +35,12 @@ of astrophotography-specific ONNX models on HuggingFace. The well-known ones
 commercial — buy them from <https://www.rc-astro.com>. They are not ONNX and
 won't load here directly even if you own them.
 
+> [!IMPORTANT]
+> **No model binaries ship with the repository.** This folder is gitignored
+> for `*.onnx`, `*.onnx.data`, `*.pt`, `*.pth`, `*.bin`, and `*.safetensors`,
+> so a fresh clone has zero models. Run the conversion script below to
+> populate it locally.
+
 For the AI hooks in this app you have three realistic options:
 
 ### 1. Convert SCUNet automatically (recommended)
@@ -54,10 +60,17 @@ pip install einops timm thop onnxscript
 python scripts/convert_scunet.py
 ```
 
-This produces `models/denoise_scunet_color.onnx` (~3.7 MB). The Easy Astro
-Photos backend picks it up automatically the next time you choose the "AI"
-denoise method. Variants: `--variant color_real_gan` (more aggressive),
-`--variant gray_25` (mono frames).
+The script downloads `scunet_color_real_psnr.pth` (~72 MB, Apache 2.0) from
+the official KAIR releases into `backend/.cache/scunet/`, then exports to
+this folder as a pair of files:
+
+- `denoise_scunet_color.onnx` (~3.7 MB graph)
+- `denoise_scunet_color.onnx.data` (~73 MB external weights)
+
+ONNX Runtime loads them together — keep both in the same folder. The Easy
+Astro Photos backend picks them up automatically the next time you choose
+the "AI" denoise method. Variants: `--variant color_real_gan` (more
+aggressive), `--variant gray_25` (mono frames).
 
 > SCUNet was trained on natural photos. It's surprisingly effective on
 > *post-stretch* astro data, where the noise grain looks more like camera

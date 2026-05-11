@@ -113,6 +113,14 @@ The backend looks for `.onnx` files in this order:
 2. `<repo>/models/` (preferred for local development)
 3. `%LOCALAPPDATA%\EasyAstroPhotos\models\` (per-user fallback)
 
+> [!IMPORTANT]
+> **No model files are bundled in this repository.** The `models/` folder
+> contains only a README and a `.gitignore` that excludes `*.onnx`,
+> `*.onnx.data`, `*.pt`, `*.pth`, `*.bin`, and `*.safetensors`. Run the
+> SCUNet conversion script below (or drop in your own model) before using
+> the "AI" denoise method — otherwise it silently falls back to the
+> built-in starlet denoiser.
+
 Files are auto-assigned to a feature by **filename prefix**:
 
 | Prefix              | Feature                       |
@@ -149,9 +157,22 @@ pip install einops timm thop onnxscript    # SCUNet network deps + dynamo export
 python scripts\convert_scunet.py
 ```
 
-This produces [`models/denoise_scunet_color.onnx`](models/denoise_scunet_color.onnx) (~3.7 MB).
-Pick the "AI" denoise method in the UI to use it. Variants `--variant color_real_gan`
-and `--variant gray_25` are also available.
+What the script does:
+
+1. Fetches SCUNet's network definition (`network_scunet.py`) from
+   <https://github.com/cszn/SCUNet> into `backend/.cache/scunet/` (gitignored).
+2. Downloads the pretrained weights `scunet_color_real_psnr.pth`
+   (**~72 MB**, Apache 2.0) from
+   <https://github.com/cszn/KAIR/releases> into the same cache folder.
+3. Loads the weights into the PyTorch model and exports ONNX via the new
+   dynamo exporter.
+4. Writes `models/denoise_scunet_color.onnx` (~3.7 MB graph) **plus**
+   `models/denoise_scunet_color.onnx.data` (~73 MB external-weights tensor
+   blob). Both files are gitignored and must coexist in the same folder —
+   ONNX Runtime loads them as a pair.
+
+Pick the "AI" denoise method in the UI to use it. Variants
+`--variant color_real_gan` and `--variant gray_25` are also available.
 
 ### Verified RTX 50-series GPU setup (Blackwell, sm_120)
 
